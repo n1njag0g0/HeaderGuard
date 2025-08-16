@@ -70,7 +70,7 @@ def banner():
       \____/  \____/ |_|  |_||_|   |_||______/
     """)
     print(Fore.CYAN + "="*50)
-    print(Fore.CYAN + Style.BRIGHT + "                HEADER GUARD v1.0  ")
+    print(Fore.CYAN + Style.BRIGHT + "          HEADER GUARD v1.0  ")
     print(Fore.CYAN + "="*50)
     print(Fore.GREEN + " A lightweight Website Security Header Scanner")
     print(Fore.YELLOW + " For ethical hacking, testing & learning only\n")
@@ -205,14 +205,19 @@ def scan_headers(url, save_report=False):
 
 def main():
     banner()
-    parser = argparse.ArgumentParser(description="HeaderGuard v2 - Website Security Header Scanner")
-    parser.add_argument("-u", "--url", help="Target URL (e.g., https://example.com)")
+    parser = argparse.ArgumentParser(
+        description="HeaderGuard v2 - Website Security Header Scanner",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument("-u", "--url", help="Default target URL (e.g., https://example.com)")
     parser.add_argument("-i", "--input", help="File containing list of URLs (one per line)")
     parser.add_argument("--threads", type=int, default=5, help="Number of threads for bulk scan")
     parser.add_argument("--save", action="store_true", help="Save report to TXT file")
     args = parser.parse_args()
 
     urls = []
+
+    # Load URLs from input file if provided
     if args.input:
         try:
             with open(args.input, "r") as f:
@@ -220,19 +225,38 @@ def main():
         except FileNotFoundError:
             print(Fore.RED + f"File not found: {args.input}" + Style.RESET_ALL)
             return
-    elif args.url:
-        urls = [args.url]
-    else:
-        url = input("Enter a website URL (e.g., https://github.com): ")
-        urls = [url]
 
-    if len(urls) > 1:
-        # Multithreading for bulk scan
-        with ThreadPoolExecutor(max_workers=args.threads) as executor:
-            for url in urls:
-                executor.submit(scan_headers, url, args.save)
-    else:
-        scan_headers(urls[0], args.save)
+    # Interactive loop
+    while True:
+        print(Fore.CYAN + "\n--- HEADER GUARD INTERACTIVE MODE ---" + Style.RESET_ALL)
+
+        # Ask for URL interactively, defaulting to -u if provided
+        default_url = args.url if args.url else ""
+        prompt = f"Enter a website URL{' (press Enter to use ' + default_url + ')' if default_url else ''}: "
+        url = input(prompt).strip()
+        if not url and default_url:
+            url = default_url
+
+        if not url:
+            print(Fore.RED + "No URL provided. Try again..." + Style.RESET_ALL)
+            continue
+
+        urls.append(url)
+
+        # Run scan
+        if len(urls) > 1:
+            with ThreadPoolExecutor(max_workers=args.threads) as executor:
+                for u in urls:
+                    executor.submit(scan_headers, u, args.save)
+        else:
+            scan_headers(urls[0], args.save)
+
+        # After scanning, ask if user wants to scan more URLs
+        urls = []  # Clear URLs for next loop
+        choice = input("\nDo you want to scan more URLs? (y/n): ").strip().lower()
+        if choice != "y":
+            print(Fore.YELLOW + "Exiting HeaderGuard. Goodbye!" + Style.RESET_ALL)
+            break
 
 if __name__ == "__main__":
     main()

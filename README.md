@@ -3,15 +3,22 @@ A useful tool that helps find missing or incorrectly set up security features on
 
 # Features
 ⦁	Provides instructions to browsers about security policies.
+
 ⦁	Scans the website, checks headers, and updates the status to indicate whether the header is present or missing.
+
 ⦁	Allows scanning a single URL or multiple URLs.
+
 ⦁	For the missing headers, recommendations are given on how to configure them properly.
 
 # Installation
-⦁ Clone the respository
-git clone https://github.com/n1njag0g0/HeaderGuard.git && cd HeaderGuard
+⦁ Clone the respository:
 
-⦁ Installing dependencies
+git clone https://github.com/n1njag0g0/HeaderGuard.git
+
+cd HeaderGuard
+
+⦁ Installing dependencies:
+
 pip install -r necessarylibraries.txt
 
 # Usage
@@ -22,4 +29,4 @@ python HeaderGuard.py -u https://example.com
 python HeaderGuard.py -i urls.txt --threads 10
 
 ⦁ Saving output:
-python HeaderGuard.py -u https://example.com --save
+  python HeaderGuard.py -u https://example.com --save

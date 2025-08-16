@@ -26,7 +26,7 @@ pip install -r necessarylibraries.txt
 python HeaderGuard.py -u https://example.com
 
 ⦁ Scanning bulk URL:
-python HeaderGuard.py -i urls.txt --threads 10
+python HeaderGuard.py -i address.txt --threads 10
 
 ⦁ Saving output:
   python HeaderGuard.py -u https://example.com --save

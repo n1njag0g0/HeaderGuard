@@ -23,7 +23,7 @@ pip install -r necessarylibraries.txt
 
 # Usage
 ⦁ Scanning a URL:
-python HeaderGuard.py -u https://example.com
+python HeaderGuard.py -u https://github.com
 
 ⦁ Scanning bulk URL:
 python HeaderGuard.py -i address.txt --threads 10

@@ -30,3 +30,13 @@ python HeaderGuard.py -i address.txt --threads 10
 
 ⦁ Saving output:
   python HeaderGuard.py -u https://github.com --save
+
+# Options
+
+⦁ -u, --url : Target URL
+
+⦁ -i, --input : File containing list of URLs (one per line)
+
+⦁ --threads : Number of threads for bulk scan (default 5)
+
+⦁ --save : Save report to TXT file

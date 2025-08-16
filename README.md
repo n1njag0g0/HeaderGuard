@@ -17,19 +17,22 @@ cd HeaderGuard
 ```
 
 ⦁ Installing dependencies:
-
+```bash
 pip install -r necessarylibraries.txt
-
+```
 # Usage
 ⦁ Scanning a URL:
+```bash
 python HeaderGuard.py -u https://github.com
-
+```
 ⦁ Scanning bulk URL:
+```bash
 python HeaderGuard.py -i address.txt --threads 10
-
+```
 ⦁ Saving output:
+```bash
   python HeaderGuard.py -u https://github.com --save
-
+```
 # Options
 
 ⦁ -u, --url : Target URL

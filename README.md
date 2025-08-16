@@ -29,4 +29,4 @@ python HeaderGuard.py -u https://example.com
 python HeaderGuard.py -i address.txt --threads 10
 
 ⦁ Saving output:
-  python HeaderGuard.py -u https://example.com --save
+  python HeaderGuard.py -u https://github.com --save

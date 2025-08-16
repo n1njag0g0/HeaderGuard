@@ -8,7 +8,7 @@ A useful tool that helps find missing or incorrectly set up security features on
 ⦁	For the missing headers, recommendations are given on how to configure them properly.
 
 # Installation
-⦁ Clone the respository:
+⦁ Clone the respository
 git clone https://github.com/n1njag0g0/HeaderGuard.git && cd HeaderGuard
 
 ⦁ Installing dependencies

@@ -2,11 +2,9 @@
 import requests
 import argparse
 from colorama import Fore, Style, init
-from concurrent.futures import ThreadPoolExecutor
 import ssl
 import socket
 from urllib.parse import urlparse
-import sys
 
 # Initialize colorama
 init(autoreset=True)
@@ -97,7 +95,6 @@ def scan_headers(url, save_report=False):
 
         print(Fore.CYAN + f"\nSecurity Headers Analysis for: {url}\n" + Style.RESET_ALL)
 
-        report_data = {"url": url, "headers": {}, "cookies": {}, "ssl": {}}
         present_count = 0
         missing_headers = []
 
@@ -106,29 +103,17 @@ def scan_headers(url, save_report=False):
             if header in headers:
                 present_count += 1
                 print(Fore.GREEN + f"PRESENT - {display_name}" + Style.RESET_ALL)
-                print(f"    Description: {info['description']}")
                 print(f"    Value: {headers[header]}\n")
-                report_data["headers"][header] = {"status": "present", "value": headers[header], "description": info["description"]}
             else:
                 missing_headers.append(header)
                 print(Fore.RED + f"MISSING - {display_name}" + Style.RESET_ALL)
-                print(f"    Description: {info['description']}\n")
-                report_data["headers"][header] = {"status": "missing", "description": info["description"], "recommendation": info["recommendation"]}
-
-        if cookies:
-            print(Fore.CYAN + "Cookies:\n" + Style.RESET_ALL)
-            for cookie in cookies:
-                print(f"{cookie.name}: HttpOnly={cookie._rest.get('HttpOnly', False)}, Secure={cookie.secure}, SameSite={cookie._rest.get('SameSite', 'None')}")
-                report_data["cookies"][cookie.name] = {"HttpOnly": cookie._rest.get("HttpOnly", False), "Secure": cookie.secure, "SameSite": cookie._rest.get("SameSite", "None")}
-            print("\n")
+                print(f"    Recommendation: {info['recommendation']}\n")
 
         ssl_status, ssl_info = check_ssl(url)
         if ssl_status:
             print(Fore.GREEN + f"[+] SSL/TLS is valid for {url}\n")
-            report_data["ssl"] = {"status": "valid", "info": ssl_info}
         else:
             print(Fore.RED + f"[-] SSL/TLS issue: {ssl_info}\n")
-            report_data["ssl"] = {"status": "invalid", "info": ssl_info}
 
         total_headers = len(SECURITY_HEADERS)
         percentage = (present_count / total_headers) * 100
@@ -150,125 +135,31 @@ def scan_headers(url, save_report=False):
         print(f"Security Grade: {grade}")
         print(Fore.YELLOW + "=" * 60 + "\n")
 
-        if missing_headers:
-            print(Fore.MAGENTA + "Recommendations for Missing Headers:\n" + Style.RESET_ALL)
-            for header in missing_headers:
-                display_name = header.replace("-", " ")
-                print(f"{display_name}: {SECURITY_HEADERS[header]['recommendation']}")
-            print("\n")
-
-        if save_report:
-            filename = url.replace("https://", "").replace("http://", "").replace("/", "_") + "_report.txt"
-            with open(filename, "w") as f:
-                f.write(f"Security Headers Analysis for: {url}\n")
-                f.write("="*60 + "\n\n")
-                f.write("Headers:\n")
-                for header, info in report_data["headers"].items():
-                    status = info.get("status", "unknown").upper()
-                    value = info.get("value", "N/A")
-                    f.write(f"{header}: {status}\n")
-                    f.write(f"    Description: {info.get('description','')}\n")
-                    if status == "PRESENT":
-                        f.write(f"    Value: {value}\n")
-                    else:
-                        f.write(f"    Recommendation: {info.get('recommendation','')}\n")
-                f.write("\nCookies:\n")
-                for name, cinfo in report_data["cookies"].items():
-                    f.write(f"{name}: HttpOnly={cinfo['HttpOnly']}, Secure={cinfo['Secure']}, SameSite={cinfo['SameSite']}\n")
-                f.write("\nSSL/TLS:\n")
-                ssl_status = report_data["ssl"].get("status","N/A")
-                f.write(f"Status: {ssl_status}\n")
-                if ssl_status == "valid":
-                    ssl_info = report_data["ssl"].get("info",{})
-                    f.write(f"Issuer: {ssl_info.get('issuer','N/A')}\n")
-                    f.write(f"Expiration: {ssl_info.get('notAfter','N/A')}\n")
-                else:
-                    f.write(f"Issue: {report_data['ssl'].get('info','')}\n")
-                f.write("\nSummary:\n")
-                f.write(f"Headers Present: {present_count}/{total_headers}\n")
-                f.write(f"Security Score: {percentage:.2f}%\n")
-                f.write("\nRecommendations for Missing Headers:\n")
-                for header, info in report_data["headers"].items():
-                    if info["status"] == "missing":
-                        f.write(f"{header}: {info['recommendation']}\n")
-            print(Fore.GREEN + f"[+] Report saved as {filename}\n")
-
     except requests.exceptions.RequestException as e:
         print(Fore.RED + f"Error scanning {url}: {e}" + Style.RESET_ALL)
 
-def ask_yes_no(prompt: str) -> bool:
-    """
-    Robust y/n prompt that keeps asking until a valid answer.
-    Works well in Windows CMD/PowerShell, Linux, and IDE terminals.
-    """
-    while True:
-        try:
-            choice = input(Fore.YELLOW + prompt + Style.RESET_ALL).strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
-            return False
-        if choice in ("y", "yes"):
-            return True
-        if choice in ("n", "no"):
-            return False
-        print(Fore.RED + "Please type 'y' or 'n' and press Enter." + Style.RESET_ALL)
-
 def main():
     banner()
-    parser = argparse.ArgumentParser(
-        description="HeaderGuard v2 - Website Security Header Scanner",
-        formatter_class=argparse.RawTextHelpFormatter
-    )
-    parser.add_argument("-u", "--url", help="Default target URL (e.g., https://example.com)")
-    parser.add_argument("-i", "--input", help="File containing list of URLs (one per line)")
-    parser.add_argument("--threads", type=int, default=5, help="Number of threads for bulk scan")
+    parser = argparse.ArgumentParser(description="HeaderGuard v2 - Website Security Header Scanner")
+    parser.add_argument("-u", "--url", help="Target URL (e.g., https://example.com)")
     parser.add_argument("--save", action="store_true", help="Save report to TXT file")
     args = parser.parse_args()
 
-    urls = []
-
-    # Load URLs from input file if provided
-    if args.input:
-        try:
-            with open(args.input, "r") as f:
-                urls = [line.strip() for line in f if line.strip()]
-        except FileNotFoundError:
-            print(Fore.RED + f"File not found: {args.input}" + Style.RESET_ALL)
-            return
-
     while True:
-        print(Fore.CYAN + "\n--- HEADER GUARD INTERACTIVE MODE ---" + Style.RESET_ALL)
-
-        # Ask for URL interactively, defaulting to -u if provided
-        default_url = args.url if args.url else ""
-        prompt = f"Enter a website URL{' (press Enter to use ' + default_url + ')' if default_url else ''}: "
-        url = input(prompt).strip()
-        if not url and default_url:
-            url = default_url
-
+        url = args.url or input("Enter a website URL: ").strip()
         if not url:
             print(Fore.RED + "No URL provided. Try again..." + Style.RESET_ALL)
             continue
 
-        urls.append(url)
-
-        # Run scan
-        if len(urls) > 1:
-            with ThreadPoolExecutor(max_workers=args.threads) as executor:
-                for u in urls:
-                    executor.submit(scan_headers, u, args.save)
-        else:
-            scan_headers(urls[0], args.save)
+        scan_headers(url, args.save)
 
         # Ask user if they want to scan again
         choice = input(Fore.YELLOW + "\nDo you want to scan another URL? (y/n): " + Style.RESET_ALL).strip().lower()
         if choice != "y":
             print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
             break
-
-        urls = []  # reset for next scan
+        args.url = None  # reset so next loop asks again
 
 
 if __name__ == "__main__":
     main()
-

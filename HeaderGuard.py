@@ -226,6 +226,7 @@ def main():
             print(Fore.RED + f"File not found: {args.input}" + Style.RESET_ALL)
             return
 
+    # Interactive loop
     while True:
         print(Fore.CYAN + "\n--- HEADER GUARD INTERACTIVE MODE ---" + Style.RESET_ALL)
 
@@ -240,9 +241,9 @@ def main():
             print(Fore.RED + "No URL provided. Try again..." + Style.RESET_ALL)
             continue
 
-        urls = [url]  # reset each time to only hold current URL
+        urls.append(url)
 
-        # Run scan (single or multiple from file)
+        # Run scan
         if len(urls) > 1:
             with ThreadPoolExecutor(max_workers=args.threads) as executor:
                 for u in urls:
@@ -250,13 +251,12 @@ def main():
         else:
             scan_headers(urls[0], args.save)
 
-        # Ask user if they want to scan again
-        choice = input(Fore.YELLOW + "\nDo you want to scan another URL? (y/n): " + Style.RESET_ALL).strip().lower()
+        # After scanning, ask if user wants to scan more URLs
+        urls = []  # Clear URLs for next loop
+        choice = input("\nDo you want to scan more URLs? (y/n): ").strip().lower()
         if choice != "y":
-            print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
+            print(Fore.YELLOW + "Exiting HeaderGuard. Goodbye!" + Style.RESET_ALL)
             break
-
 
 if __name__ == "__main__":
     main()
-

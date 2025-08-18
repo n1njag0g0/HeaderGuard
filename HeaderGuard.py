@@ -240,9 +240,9 @@ def main():
             print(Fore.RED + "No URL provided. Try again..." + Style.RESET_ALL)
             continue
 
-        urls.append(url)
+        urls = [url]  # reset each time to only hold current URL
 
-        # Run scan
+        # Run scan (single or multiple from file)
         if len(urls) > 1:
             with ThreadPoolExecutor(max_workers=args.threads) as executor:
                 for u in urls:
@@ -256,8 +256,7 @@ def main():
             print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
             break
 
-        urls = []  # reset for next scan
-
 
 if __name__ == "__main__":
     main()
+

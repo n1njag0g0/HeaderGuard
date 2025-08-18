@@ -77,7 +77,6 @@ def banner():
     print(Fore.YELLOW + " For ethical hacking, testing & learning only\n")
     print(Fore.CYAN + "-"*50)
 
-# SSL/TLS Check
 def check_ssl(url):
     parsed_url = urlparse(url)
     hostname = parsed_url.hostname
@@ -90,7 +89,6 @@ def check_ssl(url):
     except Exception as e:
         return False, str(e)
 
-# Core scanning function
 def scan_headers(url, save_report=False):
     try:
         response = requests.get(url, timeout=10)
@@ -103,7 +101,6 @@ def scan_headers(url, save_report=False):
         present_count = 0
         missing_headers = []
 
-        # Header check
         for header, info in SECURITY_HEADERS.items():
             display_name = header.replace("-", " ")
             if header in headers:
@@ -118,7 +115,6 @@ def scan_headers(url, save_report=False):
                 print(f"    Description: {info['description']}\n")
                 report_data["headers"][header] = {"status": "missing", "description": info["description"], "recommendation": info["recommendation"]}
 
-        # Cookie inspection
         if cookies:
             print(Fore.CYAN + "Cookies:\n" + Style.RESET_ALL)
             for cookie in cookies:
@@ -126,7 +122,6 @@ def scan_headers(url, save_report=False):
                 report_data["cookies"][cookie.name] = {"HttpOnly": cookie._rest.get("HttpOnly", False), "Secure": cookie.secure, "SameSite": cookie._rest.get("SameSite", "None")}
             print("\n")
 
-        # SSL/TLS check
         ssl_status, ssl_info = check_ssl(url)
         if ssl_status:
             print(Fore.GREEN + f"[+] SSL/TLS is valid for {url}\n")
@@ -135,7 +130,6 @@ def scan_headers(url, save_report=False):
             print(Fore.RED + f"[-] SSL/TLS issue: {ssl_info}\n")
             report_data["ssl"] = {"status": "invalid", "info": ssl_info}
 
-        # Security score
         total_headers = len(SECURITY_HEADERS)
         percentage = (present_count / total_headers) * 100
         if percentage == 100:
@@ -156,7 +150,6 @@ def scan_headers(url, save_report=False):
         print(f"Security Grade: {grade}")
         print(Fore.YELLOW + "=" * 60 + "\n")
 
-        # Recommendations
         if missing_headers:
             print(Fore.MAGENTA + "Recommendations for Missing Headers:\n" + Style.RESET_ALL)
             for header in missing_headers:
@@ -164,13 +157,11 @@ def scan_headers(url, save_report=False):
                 print(f"{display_name}: {SECURITY_HEADERS[header]['recommendation']}")
             print("\n")
 
-        # Save report in TXT
         if save_report:
             filename = url.replace("https://", "").replace("http://", "").replace("/", "_") + "_report.txt"
             with open(filename, "w") as f:
                 f.write(f"Security Headers Analysis for: {url}\n")
                 f.write("="*60 + "\n\n")
-                
                 f.write("Headers:\n")
                 for header, info in report_data["headers"].items():
                     status = info.get("status", "unknown").upper()
@@ -205,13 +196,14 @@ def scan_headers(url, save_report=False):
     except requests.exceptions.RequestException as e:
         print(Fore.RED + f"Error scanning {url}: {e}" + Style.RESET_ALL)
 
-# Ask y/n function
 def ask_yes_no(prompt: str) -> bool:
+    """
+    Robust y/n prompt that keeps asking until a valid answer.
+    Works well in Windows CMD/PowerShell, Linux, and IDE terminals.
+    """
     while True:
         try:
-            sys.stdout.write(Fore.YELLOW + prompt + Style.RESET_ALL)
-            sys.stdout.flush()
-            choice = input().strip().lower()
+            choice = input(Fore.YELLOW + prompt + Style.RESET_ALL).strip().lower()
         except (EOFError, KeyboardInterrupt):
             print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
             return False
@@ -233,7 +225,7 @@ def main():
     parser.add_argument("--save", action="store_true", help="Save report to TXT file")
     args = parser.parse_args()
 
-    # ---- BULK FILE MODE ----
+    # ---------- BULK FILE MODE ----------
     if args.input:
         try:
             with open(args.input, "r") as f:
@@ -246,9 +238,14 @@ def main():
         with ThreadPoolExecutor(max_workers=args.threads) as executor:
             for u in urls:
                 executor.submit(scan_headers, u, args.save)
-        return  # Exit after bulk scan
 
-    # ---- INTERACTIVE MODE ----
+        # After bulk, offer to continue interactively
+        if not ask_yes_no("\nBulk scan complete. Scan another URL interactively? (y/n): "):
+            print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
+            return
+        # else fall through to interactive mode
+
+    # ---------- INTERACTIVE MODE ----------
     while True:
         print(Fore.CYAN + "\n--- HEADER GUARD INTERACTIVE MODE ---" + Style.RESET_ALL)
 

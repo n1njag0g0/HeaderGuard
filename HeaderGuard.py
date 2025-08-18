@@ -217,7 +217,7 @@ def main():
 
     urls = []
 
-    # Load URLs from input file if provided
+    # ---- BULK FILE MODE ----
     if args.input:
         try:
             with open(args.input, "r") as f:
@@ -226,10 +226,16 @@ def main():
             print(Fore.RED + f"File not found: {args.input}" + Style.RESET_ALL)
             return
 
+        print(Fore.CYAN + f"\n[+] Bulk scanning {len(urls)} URLs from {args.input}\n" + Style.RESET_ALL)
+        with ThreadPoolExecutor(max_workers=args.threads) as executor:
+            for u in urls:
+                executor.submit(scan_headers, u, args.save)
+        return  # Exit after bulk scan
+
+    # ---- INTERACTIVE MODE ----
     while True:
         print(Fore.CYAN + "\n--- HEADER GUARD INTERACTIVE MODE ---" + Style.RESET_ALL)
 
-        # Ask for URL interactively, defaulting to -u if provided
         default_url = args.url if args.url else ""
         prompt = f"Enter a website URL{' (press Enter to use ' + default_url + ')' if default_url else ''}: "
         url = input(prompt).strip()
@@ -240,17 +246,8 @@ def main():
             print(Fore.RED + "No URL provided. Try again..." + Style.RESET_ALL)
             continue
 
-        urls.append(url)
+        scan_headers(url, args.save)
 
-        # Run scan
-        if len(urls) > 1:
-            with ThreadPoolExecutor(max_workers=args.threads) as executor:
-                for u in urls:
-                    executor.submit(scan_headers, u, args.save)
-        else:
-            scan_headers(urls[0], args.save)
-
-        # Ask user if they want to scan again
         choice = input(Fore.YELLOW + "\nDo you want to scan another URL? (y/n): " + Style.RESET_ALL).strip().lower()
         if choice != "y":
             print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
@@ -260,4 +257,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

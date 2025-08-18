@@ -32,6 +32,10 @@ pip install -r necessarylibraries.txt
 ```bash
 python HeaderGuard.py
 ```
+<p align="center">
+  <img width="324" height="365" alt="image" src="https://github.com/user-attachments/assets/e1af9304-48a4-4663-9180-0039b275b2b8" />
+</p>
+
 ⦁ Scanning bulk URL:
 ```bash
 python HeaderGuard.py --threads 10

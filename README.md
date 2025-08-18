@@ -19,6 +19,9 @@ git clone https://github.com/n1njag0g0/HeaderGuard.git
 
 cd HeaderGuard
 ```
+<p>
+  <img width="1002" height="478" alt="image" src="https://github.com/user-attachments/assets/8fc236e7-3b8a-4594-a4c8-4f16af7dc897" />
+</p>
 
 ⦁ Installing dependencies:
 ```bash
@@ -47,5 +50,8 @@ python HeaderGuard.py --threads 10
 
 ⦁ --save : Save report to TXT file
 
-<img width="531" height="155" alt="image" src="https://github.com/user-attachments/assets/8f651f93-fcdf-4442-95f4-322e840dc95c" />
+<p align="center">
+  <img width="531" height="155" alt="image" src="https://github.com/user-attachments/assets/8f651f93-fcdf-4442-95f4-322e840dc95c">
+</p>
+
 

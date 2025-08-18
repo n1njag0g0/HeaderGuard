@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import ssl
 import socket
 from urllib.parse import urlparse
+import sys
 
 # Initialize colorama
 init(autoreset=True)
@@ -70,7 +71,7 @@ def banner():
       \____/  \____/ |_|  |_||_|   |_||______/
     """)
     print(Fore.CYAN + "="*50)
-    print(Fore.CYAN + Style.BRIGHT + "          HEADER GUARD v1.0  ")
+    print(Fore.CYAN + Style.BRIGHT + "          HEADER GUARD v2.0  ")
     print(Fore.CYAN + "="*50)
     print(Fore.GREEN + " A lightweight Website Security Header Scanner")
     print(Fore.YELLOW + " For ethical hacking, testing & learning only\n")
@@ -89,6 +90,7 @@ def check_ssl(url):
     except Exception as e:
         return False, str(e)
 
+# Core scanning function
 def scan_headers(url, save_report=False):
     try:
         response = requests.get(url, timeout=10)
@@ -203,6 +205,22 @@ def scan_headers(url, save_report=False):
     except requests.exceptions.RequestException as e:
         print(Fore.RED + f"Error scanning {url}: {e}" + Style.RESET_ALL)
 
+# Ask y/n function
+def ask_yes_no(prompt: str) -> bool:
+    while True:
+        try:
+            sys.stdout.write(Fore.YELLOW + prompt + Style.RESET_ALL)
+            sys.stdout.flush()
+            choice = input().strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
+            return False
+        if choice in ("y", "yes"):
+            return True
+        if choice in ("n", "no"):
+            return False
+        print(Fore.RED + "Please type 'y' or 'n' and press Enter." + Style.RESET_ALL)
+
 def main():
     banner()
     parser = argparse.ArgumentParser(
@@ -214,8 +232,6 @@ def main():
     parser.add_argument("--threads", type=int, default=5, help="Number of threads for bulk scan")
     parser.add_argument("--save", action="store_true", help="Save report to TXT file")
     args = parser.parse_args()
-
-    urls = []
 
     # ---- BULK FILE MODE ----
     if args.input:
@@ -248,14 +264,9 @@ def main():
 
         scan_headers(url, args.save)
 
-        choice = input(Fore.YELLOW + "\nDo you want to scan another URL? (y/n): " + Style.RESET_ALL).strip().lower()
-        if choice != "y":
+        if not ask_yes_no("\nDo you want to scan another URL? (y/n): "):
             print(Fore.CYAN + "\n[+] Exiting HeaderGuard. Goodbye!\n" + Style.RESET_ALL)
             break
 
-        urls = []  # reset for next scan
-
 if __name__ == "__main__":
     main()
-
-

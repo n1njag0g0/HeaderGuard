@@ -1,6 +1,10 @@
 # HeaderGuard
 HeaderGuard is a Python-based security tool that analyzes websites for essential HTTP security headers, SSL/TLS configuration, and cookie settings. It offers detailed insights and recommendations to assist developers, security testers, and ethical hackers in enhancing web application security and minimizing exposure to common threats.
 
+<p align="center">
+  <img width="572" height="389" alt="image" src="https://github.com/user-attachments/assets/69fccdfc-5230-478f-99b0-a06fcfce64dd">
+</p>
+
 # Features
 - Scan for common HTTP security headers.
 - Check SSL/TLS certificates.
@@ -23,15 +27,15 @@ pip install -r necessarylibraries.txt
 # Usage
 ⦁ Scanning a URL:
 ```bash
-python HeaderGuard.py -u https://github.com
+python HeaderGuard.py
 ```
 ⦁ Scanning bulk URL:
 ```bash
-python HeaderGuard.py -i address.txt --threads 10
+python HeaderGuard.py --threads 10
 ```
 ⦁ Saving output:
 ```bash
-  python HeaderGuard.py -u https://github.com --save
+  python HeaderGuard.py --save
 ```
 # Options
 
@@ -42,3 +46,6 @@ python HeaderGuard.py -i address.txt --threads 10
 ⦁ --threads : Number of threads for bulk scan (default 5)
 
 ⦁ --save : Save report to TXT file
+
+<img width="531" height="155" alt="image" src="https://github.com/user-attachments/assets/8f651f93-fcdf-4442-95f4-322e840dc95c" />
+
